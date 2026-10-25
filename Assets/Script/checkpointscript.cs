@@ -1,32 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class checkpointscript : MonoBehaviour
 {
     private RespawnScript respawn;
     private BoxCollider2D checkPointCollider;
-    void Awake() {
-        checkPointCollider = GetComponent<BoxCollider2D>();   
-        respawn = GameObject.FindGameObjectWithTag("Respawn").GetComponent<RespawnScript>();
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
+    void Awake()
     {
-        
+        checkPointCollider = GetComponent<BoxCollider2D>();
+        GameObject respawnObject = GameObject.FindGameObjectWithTag("Respawn");
+        if (respawnObject != null)
+            respawn = respawnObject.GetComponent<RespawnScript>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (respawn != null && other.CompareTag("Player"))
         {
-            respawn.respawnPoint = this.gameObject;
+            respawn.respawnPoint = gameObject;
             checkPointCollider.enabled = false;
         }
     }

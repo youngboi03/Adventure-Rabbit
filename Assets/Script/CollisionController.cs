@@ -1,29 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CollisionController : MonoBehaviour
 {
+    // Debug-only logging: stripped from release builds and no longer spams the console every physics step.
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    private static void Log(Collision2D collision, string message)
+    {
+        if (collision.gameObject.name == "box")
+            Debug.Log(message);
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.name == "box")
-        {
-            Debug.Log("enter");
-        }
+        Log(collision, "enter");
     }
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        if (collision.gameObject.name == "box")
-        {
-            Debug.Log("stay");
-        }
-    } 
+
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.name == "box")
-        {
-            Debug.Log("exit");
-        }
-
+        Log(collision, "exit");
     }
 }

@@ -18,6 +18,8 @@ public class CharacterController2D : MonoBehaviour
     private Rigidbody2D m_Rigidbody2D;
     private bool m_FacingRight = true;  // For determining which way the player is currently facing.
     private Vector3 m_Velocity = Vector3.zero;
+    private readonly Collider2D[] m_GroundHits = new Collider2D[8];
+    private ContactFilter2D m_GroundFilter;
 
     [Header("Events")]
     [Space]
@@ -33,6 +35,7 @@ public class CharacterController2D : MonoBehaviour
     private void Awake()
     {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
+        m_GroundFilter.useTriggers = Physics2D.queriesHitTriggers; // Match OverlapCircleAll's trigger behaviour.
 
         if (OnLandEvent == null)
             OnLandEvent = new UnityEvent();
@@ -48,14 +51,17 @@ public class CharacterController2D : MonoBehaviour
 
         // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
         // This can be done using layers instead but Sample Assets will not overwrite your project settings.
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
-        for (int i = 0; i < colliders.Length; i++)
+        // Reuse a preallocated buffer instead of allocating a new array every physics step.
+        m_GroundFilter.SetLayerMask(m_WhatIsGround);
+        int count = Physics2D.OverlapCircle(m_GroundCheck.position, k_GroundedRadius, m_GroundFilter, m_GroundHits);
+        for (int i = 0; i < count; i++)
         {
-            if (colliders[i].gameObject != gameObject)
+            if (m_GroundHits[i].gameObject != gameObject)
             {
                 m_Grounded = true;
                 if (!wasGrounded)
                     OnLandEvent.Invoke();
+                break;
             }
         }
     }
